@@ -1,0 +1,68 @@
+- name: Install apache on Debian
+  pkg:
+    name: apache2
+    status: latest
+  when: ansible_os_family == "Debian"
+- name: Install apache on RedHat
+  pkg:
+    name: httpd
+    status: latest
+  when: ansible_os_family == "RedHat"
+- name: Install apache on FreeBSD
+  pkg:
+    name: apache24
+    status: latest
+  when: ansible_os_family == "FreeBSD"
+- name: Configuring apache2 service "Server name" on 'Debian'
+  lineinfile:
+    dest: /etc/apache2/sites-enabled/000-default.conf
+    line: "ServerName {{ inventory_hostname }}"
+    regexp: "#ServerName"
+  when: ansible_os_family == "Debian"
+  notify: restart apache2
+- name: Configuring httpd service "ServerName" for "RedHat"
+  lineinfile:
+    dest: /etc/httpd/conf/httpd.conf
+    line: "ServerName {{ inventory_hostname }}"
+    regexp: "#ServerName"
+  when: ansible_os_family == "RedHat"
+  notify: restart httpd
+- name: Configuring apache24 service "ServerName" for "FreeBSD"
+  lineinfile:
+    dest: /usr/local/etc/apache24/httpd.conf
+    line: "ServerName {{ inventory_hostname }}"
+    regexp: "#ServerName"
+  when: ansible_os_family == "FreeBSD"
+  notify: restart apache24
+- name: Enabling apache2 service 'Debian'
+  service:
+    name: apache2
+    enabled: yes 
+  when: ansible_os_family == "Debian"
+- name: Enabling httpd service "RedHat"
+  systemd:
+    name: httpd
+    enabled: yes
+  when: ansible_os_family == "RedHat"
+- name: Enabling apache24 service "FreeBSD"
+  service:
+    name: apache24
+    enabled: yes
+  when: ansible_os_family == "FreeBSD"
+- name: Copy index.html template file to "Debian"
+  template:
+    src: templates/index.html.j2
+    dest: /var/www/html/{{ pc }}.html
+  when: ansible_os_family == "Debian"
+  notify: restart apache2
+- name: Copy index.html template file to "RedHat"
+  template:
+    src: templates/index.html.j2
+    dest: /var/www/html/{{ pc }}.html
+  when: ansible_os_family == "RedHat"
+  notify: restart httpd
+- name: Copy index.html template file to "FreeBSD"
+  template:
+    src: template/index.html.j2
+    dest: /usr/local/www/apache24/data/{{ pc }}.html
+  when: ansible_os_family == "FreeBSD"

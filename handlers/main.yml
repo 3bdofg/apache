@@ -1,0 +1,12 @@
+- name: restart apache2
+  service:
+    name: apache2
+    status: restarted
+- name: restart httpd
+  systemd:
+    name: httpd
+    status: restarted
+- name: restart apache24
+  service:
+    name: apache24
+    status: restarted
