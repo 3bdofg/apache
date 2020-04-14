@@ -66,3 +66,4 @@
     src: template/index.html.j2
     dest: /usr/local/www/apache24/data/{{ pc }}.html
   when: ansible_os_family == "FreeBSD"
+  notify: restart apache24
